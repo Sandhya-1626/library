@@ -1,38 +1,52 @@
 {
-    "users": [],
-    "books": [
-        {
-            "id": 1,
-            "title": "Quantum Physics for Beginners",
-            "category": "Science",
-            "pages": [
-                "Page 1: Introduction to Quantum Mechanics...",
-                "Page 2: The Wave-Particle Duality...",
-                "Page 3: Schrödinger's Cat..."
-            ],
-            "ratings": [
-                5,
-                4,
-                5
-            ]
-        },
-        {
-            "id": 2,
-            "title": "Mastering JavaScript",
-            "category": "Technology",
-            "pages": [
-                "Page 1: ES6+ Features...",
-                "Page 2: Closures and Prototypes...",
-                "Page 3: Async/Await Deep Dive..."
-            ],
-            "ratings": [
-                5,
-                5
-            ]
-        }
-    ],
-    "notifications": [],
-    "feedbacks": [],
-    "logs": [],
-    "bookViews": []
+  "users": [
+    {
+      "name": "Shwetha S",
+      "rollNo": "24uam151",
+      "department": "Computer Science",
+      "year": "2nd Year"
+    }
+  ],
+  "books": [
+    {
+      "id": 1,
+      "title": "Quantum Physics for Beginners",
+      "category": "Science",
+      "pages": [
+        "Page 1: Introduction to Quantum Mechanics...",
+        "Page 2: The Wave-Particle Duality...",
+        "Page 3: Schrödinger's Cat..."
+      ],
+      "ratings": [
+        5,
+        4,
+        5
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Mastering JavaScript",
+      "category": "Technology",
+      "pages": [
+        "Page 1: ES6+ Features...",
+        "Page 2: Closures and Prototypes...",
+        "Page 3: Async/Await Deep Dive..."
+      ],
+      "ratings": [
+        5,
+        5
+      ]
+    }
+  ],
+  "notifications": [],
+  "feedbacks": [],
+  "logs": [
+    {
+      "name": "Shwetha S",
+      "rollNo": "24uam151",
+      "department": "Computer Science",
+      "date": "2026-01-30T04:01:32.116Z"
+    }
+  ],
+  "bookViews": []
 }
