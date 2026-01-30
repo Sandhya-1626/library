@@ -5,6 +5,13 @@ import path from 'path';
 import multer from 'multer';
 import { fileURLToPath } from 'url';
 
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+});
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -30,9 +37,12 @@ const upload = multer({ storage });
 // Admin Login
 app.post('/api/login/admin', (req, res) => {
     const { username, password } = req.body;
+    console.log('Admin login attempt:', { username });
     if (username === 'admin' && password === 'admin123') {
+        console.log('Admin login successful');
         res.json({ success: true, message: 'Admin logged in', user: { username, role: 'admin' } });
     } else {
+        console.log('Admin login failed: Invalid credentials');
         res.status(401).json({ success: false, message: 'Invalid admin credentials' });
     }
 });
