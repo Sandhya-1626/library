@@ -25,7 +25,7 @@ const Login = ({ onLoginSuccess }) => {
                 endpoint = '/api/login/student';
             }
 
-            const res = await axios.post(`http://localhost:5000${endpoint}`, formData);
+            const res = await axios.post(endpoint, formData);
             if (res.data.success) {
                 if (isRegister) {
                     alert('Registration successful! Please login.');
