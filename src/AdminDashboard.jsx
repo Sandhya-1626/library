@@ -13,18 +13,20 @@ const AdminDashboard = ({ onLogout }) => {
     const [feedbacks, setFeedbacks] = useState([]);
     const [users, setUsers] = useState([]);
     const [bookViews, setBookViews] = useState([]);
-    const [activeTab, setActiveTab] = useState('overview'); // overview, users, books, views
+    const [loginLogs, setLoginLogs] = useState([]);
+    const [activeTab, setActiveTab] = useState('overview'); // overview, users, books, views, logs
     const [newBook, setNewBook] = useState({ title: '', category: '', pages: '' });
     const [selectedFile, setSelectedFile] = useState(null);
 
     const fetchData = async () => {
-        const [s, n, b, f, u, bv] = await Promise.all([
-            axios.get('http://localhost:5000/api/admin/stats'),
-            axios.get('http://localhost:5000/api/admin/notifications'),
-            axios.get('http://localhost:5000/api/books'),
-            axios.get('http://localhost:5000/api/admin/feedbacks'),
-            axios.get('http://localhost:5000/api/admin/users'),
-            axios.get('http://localhost:5000/api/admin/book-views')
+        const [s, n, b, f, u, bv, l] = await Promise.all([
+            axios.get('/api/admin/stats'),
+            axios.get('/api/admin/notifications'),
+            axios.get('/api/books'),
+            axios.get('/api/admin/feedbacks'),
+            axios.get('/api/admin/users'),
+            axios.get('/api/admin/book-views'),
+            axios.get('/api/admin/logs')
         ]);
         setStats(s.data);
         setNotifs(n.data);
@@ -32,6 +34,7 @@ const AdminDashboard = ({ onLogout }) => {
         setFeedbacks(f.data);
         setUsers(u.data);
         setBookViews(bv.data);
+        setLoginLogs(l.data);
     };
 
     useEffect(() => {
@@ -49,7 +52,7 @@ const AdminDashboard = ({ onLogout }) => {
             formData.append('bookFile', selectedFile);
         }
 
-        await axios.post('http://localhost:5000/api/books', formData, {
+        await axios.post('/api/books', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
         fetchData();
@@ -58,7 +61,7 @@ const AdminDashboard = ({ onLogout }) => {
     };
 
     const handleDeleteBook = async (id) => {
-        await axios.delete(`http://localhost:5000/api/books/${id}`);
+        await axios.delete(`/api/books/${id}`);
         fetchData();
     };
 
@@ -130,6 +133,17 @@ const AdminDashboard = ({ onLogout }) => {
                 >
                     👁️ Book Views Tracking
                 </button>
+                <button
+                    onClick={() => setActiveTab('logs')}
+                    style={{
+                        width: 'auto',
+                        padding: '0.5rem 1.5rem',
+                        background: activeTab === 'logs' ? 'var(--primary)' : 'transparent',
+                        border: '1px solid var(--glass-border)'
+                    }}
+                >
+                    ⏲️ Candidate Login History
+                </button>
             </div>
 
             {/* Overview Tab */}
@@ -178,7 +192,7 @@ const AdminDashboard = ({ onLogout }) => {
 
             {/* Registered Users Tab */}
             {activeTab === 'users' && (
-                <div className="glass-card">
+                <div className="glass-card" style={{ maxWidth: '100%' }}>
                     <h3><Users /> All Registered Candidates</h3>
                     {users.length === 0 ? (
                         <p>No candidates registered yet.</p>
@@ -209,9 +223,47 @@ const AdminDashboard = ({ onLogout }) => {
                 </div>
             )}
 
+            {/* Login History Tab */}
+            {activeTab === 'logs' && (
+                <div className="glass-card" style={{ maxWidth: '100%' }}>
+                    <h3>⏲️ Candidate Login History</h3>
+                    <p style={{ fontSize: '0.9rem', color: '#888', marginBottom: '20px' }}>
+                        Track every time a candidate logs into the system
+                    </p>
+                    {loginLogs.length === 0 ? (
+                        <p>No login history yet.</p>
+                    ) : (
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr style={{ borderBottom: '2px solid var(--glass-border)' }}>
+                                        <th style={{ padding: '12px', textAlign: 'left' }}>Candidate Name</th>
+                                        <th style={{ padding: '12px', textAlign: 'left' }}>Roll Number</th>
+                                        <th style={{ padding: '12px', textAlign: 'left' }}>Department</th>
+                                        <th style={{ padding: '12px', textAlign: 'left' }}>Login Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loginLogs.map((log, i) => (
+                                        <tr key={i} style={{ borderBottom: '1px solid var(--glass-border)' }}>
+                                            <td style={{ padding: '12px' }}>{log.name}</td>
+                                            <td style={{ padding: '12px' }}>{log.rollNo}</td>
+                                            <td style={{ padding: '12px' }}>{log.department}</td>
+                                            <td style={{ padding: '12px', fontSize: '0.85rem', color: '#888' }}>
+                                                {new Date(log.date).toLocaleString()}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            )}
+
             {/* Manage Books Tab */}
             {activeTab === 'books' && (
-                <div className="glass-card">
+                <div className="glass-card" style={{ maxWidth: '100%' }}>
                     <h3><BookOpen /> Manage Books</h3>
                     <div style={{ marginBottom: '20px' }}>
                         <input placeholder="Title" value={newBook.title} onChange={e => setNewBook({ ...newBook, title: e.target.value })} />
@@ -262,7 +314,7 @@ const AdminDashboard = ({ onLogout }) => {
 
             {/* Book Views Tracking Tab */}
             {activeTab === 'views' && (
-                <div className="glass-card">
+                <div className="glass-card" style={{ maxWidth: '100%' }}>
                     <h3>👁️ Book Views Tracking</h3>
                     <p style={{ fontSize: '0.9rem', color: '#888', marginBottom: '20px' }}>
                         Track which candidates are viewing which books in real-time
