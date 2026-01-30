@@ -170,6 +170,11 @@ app.get('/api/admin/users', async (req, res) => {
     res.json(data.users || []);
 });
 
+app.get('/api/admin/logs', async (req, res) => {
+    const data = await getData();
+    res.json((data.logs || []).reverse());
+});
+
 app.get('/api/admin/book-views', async (req, res) => {
     const data = await getData();
     res.json((data.bookViews || []).reverse());
