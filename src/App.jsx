@@ -13,7 +13,7 @@ function App() {
 
   const handleLogout = async (duration = 0) => {
     if (session.role === 'student') {
-      await axios.post('http://localhost:5000/api/logout', {
+      await axios.post('/api/logout', {
         name: session.user.name,
         duration
       });
