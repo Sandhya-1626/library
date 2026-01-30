@@ -7,17 +7,20 @@ import json
 st.set_page_config(page_title="Smart Library Admin", layout="wide")
 
 # API Base URL
-API_URL = "http://localhost:5000/api"
+API_URL = "http://127.0.0.1:5000/api"
 
 def login_admin(username, password):
     try:
-        response = requests.post(f"{API_URL}/login/admin", json={"username": username, "password": password})
+        response = requests.post(f"{API_URL}/login/admin", json={"username": username.strip(), "password": password.strip()})
         if response.status_code == 200:
             return response.json()
         else:
-            return {"success": False, "message": "Invalid credentials or server error"}
+            try:
+                return response.json()
+            except:
+                return {"success": False, "message": f"Server Error: {response.status_code}"}
     except requests.exceptions.ConnectionError:
-        return {"success": False, "message": "Cannot connect to server. Is 'node server.js' running?"}
+        return {"success": False, "message": "Cannot connect to server. Is 'node server.js' running at 127.0.0.1:5000?"}
 
 def fetch_data(endpoint):
     try:
@@ -51,6 +54,16 @@ st.markdown("""
 # Main App Logic
 def main():
     st.title("📚 Smart Digital Library - Admin Portal")
+
+    # Health check sidebar
+    try:
+        health = requests.get(f"http://127.0.0.1:5000/api/books", timeout=1)
+        if health.status_code == 200:
+            st.sidebar.success("✅ Backend Connected")
+        else:
+            st.sidebar.error(f"⚠️ Backend Error: {health.status_code}")
+    except:
+        st.sidebar.error("❌ Backend Offline")
 
     if not st.session_state.logged_in:
         st.header("Admin Login")
