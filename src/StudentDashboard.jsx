@@ -60,6 +60,18 @@ const StudentDashboard = ({ user, onLogout }) => {
         alert(`Pre-booked ${bookTitle}! Admin notified. Collect within 24hrs.`);
     };
 
+    const handleReadBook = async (book) => {
+        // Track the book view
+        await axios.post('http://localhost:5000/api/track-view', {
+            studentName: user.name,
+            rollNo: user.rollNo,
+            bookTitle: book.title,
+            bookId: book.id
+        });
+        setReadingBook(book);
+        setPage(0);
+    };
+
     const filteredBooks = books
         .filter(b => String(b.title).toLowerCase().includes(search.toLowerCase()))
         .slice(0, 50); // Limit to 50 books for performance
@@ -220,7 +232,7 @@ const StudentDashboard = ({ user, onLogout }) => {
                             </div>
                         </div>
                         <div style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                            <button onClick={() => { setReadingBook(book); setPage(0); }} style={{ padding: '0.5rem' }}>Read Online</button>
+                            <button onClick={() => handleReadBook(book)} style={{ padding: '0.5rem' }}>Read Online</button>
                             <button onClick={() => handlePreBook(book.title)} style={{ padding: '0.5rem', background: 'transparent', border: '1px solid var(--glass-border)' }}>Pre-Book</button>
                         </div>
                     </div>
