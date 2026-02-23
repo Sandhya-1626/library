@@ -3,6 +3,7 @@ import axios from 'axios';
 import Login from './Login';
 import StudentDashboard from './StudentDashboard';
 import AdminDashboard from './AdminDashboard';
+import './App.css';
 
 function App() {
   const [session, setSession] = useState(null); // { user, role }
@@ -12,11 +13,13 @@ function App() {
   };
 
   const handleLogout = async (duration = 0) => {
-    if (session.role === 'student') {
-      await axios.post('http://localhost:5000/api/logout', {
-        name: session.user.name,
-        duration
-      });
+    if (session?.role === 'student') {
+      try {
+        await axios.post('/api/logout', {
+          name: session.user.name,
+          duration,
+        });
+      } catch {/* ignore */ }
     }
     setSession(null);
   };
