@@ -173,21 +173,73 @@ app.get('/api/books', (req, res) => {
   res.json(list);
 });
 
+// ── Helper: Fetch Dynamic Content from Wikipedia ────────────────────────────
+async function fetchDynamicContent(title) {
+  const https = require('https');
+  const cleanTitle = title.replace(/\([^)]*\)/g, '').split(',')[0].trim();
+
+  return new Promise((resolve) => {
+    const url = `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=false&explaintext=true&titles=${encodeURIComponent(cleanTitle)}&format=json&redirects=1`;
+
+    const req = https.get(url, { headers: { 'User-Agent': 'DigitalLibrary/1.0' } }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          const pages = json.query.pages;
+          const wikiPage = pages[Object.keys(pages)[0]];
+
+          if (!wikiPage.extract) {
+            resolve(["We're sorry, but the full digital content for this book is currently being digitized. \n\nCheck back soon, or try reading one of our Featured E-Books!"]);
+            return;
+          }
+
+          // Chunk the Wikipedia text into pages
+          const text = wikiPage.extract;
+          const chunks = [];
+          const maxChar = 2000;
+          for (let i = 0; i < text.length; i += maxChar) {
+            chunks.push(text.slice(i, i + maxChar).trim());
+          }
+          resolve(chunks);
+        } catch {
+          resolve(["Content is currently unavailable for online reading."]);
+        }
+      });
+    });
+    req.on('error', () => resolve(["Connectivity issue. Could not fetch online content."]));
+    req.setTimeout(5000, () => { req.destroy(); resolve(["Timeout fetching content."]); });
+  });
+}
+
 // ── Books: get single book WITH pages (for reading) ───────────────────────────
-app.get('/api/books/:id', (req, res) => {
+app.get('/api/books/:id', async (req, res) => {
   const book = books.find(b => String(b.id) === String(req.params.id));
   if (!book) return res.status(404).json({ message: 'Book not found.' });
+
+  // If book has no pages (normal book), fetch dynamically
+  if (!book.pages || book.pages.length === 0) {
+    const pages = await fetchDynamicContent(book.title);
+    return res.json({ ...book, pages });
+  }
+
   res.json(book);
 });
 
 // ── Download a book as .txt ───────────────────────────────────────────────────
-app.get('/api/books/:id/download', (req, res) => {
+app.get('/api/books/:id/download', async (req, res) => {
   const book = books.find(b => String(b.id) === String(req.params.id));
   if (!book) return res.status(404).json({ message: 'Book not found.' });
 
+  let pages = book.pages;
+  if (!pages || pages.length === 0) {
+    pages = await fetchDynamicContent(book.title);
+  }
+
   const sep = '\n\n' + '═'.repeat(72) + '\n\n';
   const header = `${book.title}\nby ${book.author || 'Unknown'}\n\n${'─'.repeat(72)}\n\n`;
-  const content = header + book.pages.join(sep);
+  const content = header + pages.join(sep);
   const filename = book.title.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_') + '.txt';
 
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
