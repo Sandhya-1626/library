@@ -69,11 +69,14 @@ function BookCard({ book, idx, onRead, onDownload, onPreBook, downloading, bookL
                         ({book.ratings.length})
                     </span>
                 )}
-                {book.isEbook && (
-                    <span style={{ marginLeft: 'auto', fontSize: '0.68rem', color: '#10b981' }}>
-                        {book.pageCount ?? '—'} pages
+                <span style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
+                    {book.id?.startsWith('ebook-') && (
+                        <span style={{ fontSize: '0.6rem', padding: '1px 4px', background: 'rgba(245,158,11,0.2)', border: '1px solid #f59e0b', borderRadius: 4, color: '#f59e0b' }}>PREMIUM</span>
+                    )}
+                    <span style={{ fontSize: '0.68rem', color: '#10b981' }}>
+                        {book.pageCount > 0 ? `${book.pageCount} pages` : 'Digital'}
                     </span>
-                )}
+                </span>
             </div>
 
             {/* Actions */}
@@ -92,25 +95,23 @@ function BookCard({ book, idx, onRead, onDownload, onPreBook, downloading, bookL
 
                 <div style={{
                     display: 'grid',
-                    gridTemplateColumns: book.isEbook ? '1fr 1fr' : '1fr',
+                    gridTemplateColumns: '1fr 1fr',
                     gap: 6,
                 }}>
-                    {book.isEbook && (
-                        <button
-                            onClick={() => onDownload(book)}
-                            disabled={downloading === book.id}
-                            style={{
-                                padding: '0.5rem 0.4rem', fontSize: '0.78rem',
-                                background: downloading === book.id
-                                    ? 'rgba(16,185,129,0.40)'
-                                    : 'linear-gradient(135deg,#10b981,#059669)',
-                                boxShadow: '0 2px 8px rgba(16,185,129,0.30)',
-                            }}
-                        >
-                            <Download size={13} />
-                            {downloading === book.id ? '…' : 'Download'}
-                        </button>
-                    )}
+                    <button
+                        onClick={() => onDownload(book)}
+                        disabled={downloading === book.id}
+                        style={{
+                            padding: '0.5rem 0.4rem', fontSize: '0.78rem',
+                            background: downloading === book.id
+                                ? 'rgba(16,185,129,0.40)'
+                                : 'linear-gradient(135deg,#10b981,#059669)',
+                            boxShadow: '0 2px 8px rgba(16,185,129,0.30)',
+                        }}
+                    >
+                        <Download size={13} />
+                        {downloading === book.id ? '…' : 'Download'}
+                    </button>
                     <button
                         onClick={() => onPreBook(book)}
                         style={{
