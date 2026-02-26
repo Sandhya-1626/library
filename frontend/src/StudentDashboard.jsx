@@ -4,8 +4,9 @@ import {
     Clock, BookOpen, Search, LogOut, Star, X,
     Library, User, BarChart2, Download, Sparkles,
     TrendingUp, FileText, Bookmark, BookMarked,
-    ChevronLeft, ChevronRight, AlertCircle,
+    AlertCircle,
 } from 'lucide-react';
+import BookDetailView from './BookDetailView';
 
 /* ── Cover gradient ── */
 const PALETTES = [
@@ -130,9 +131,14 @@ function BookCard({ book, idx, onRead, onDownload, onPreBook, downloading, bookL
 }
 
 /* ══════════════════════════════════════════════════════
-   BookReader modal — pure React, no external lib
+   FeedbackModal — kept here, BookReader moved to BookDetailView.jsx
 ══════════════════════════════════════════════════════ */
-function BookReader({ book, onClose, onRate, onDownload, downloading }) {
+// BookReader removed — now using BookDetailView component
+
+/* ══════════════════════════════════════════════════════
+   __ placeholder to preserve structure __
+══════════════════════════════════════════════════════ */
+function _removed_BookReader({ book, onClose, onRate, onDownload, downloading }) {
     const [page, setPage] = useState(0);
     const [sliding, setSliding] = useState(false);
 
@@ -583,7 +589,7 @@ const StudentDashboard = ({ user, onLogout }) => {
 
     if (readingBook) {
         return (
-            <BookReader
+            <BookDetailView
                 book={readingBook}
                 downloading={downloading}
                 onClose={() => setReadingBook(null)}
@@ -688,19 +694,21 @@ const StudentDashboard = ({ user, onLogout }) => {
                             <div style={{ position: 'relative', zIndex: 1 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                                     <Sparkles size={14} color="#818cf8" />
-                                    <span style={{ color: '#818cf8', fontWeight: 600, fontSize: '0.75rem', letterSpacing: '0.10em' }}>FEATURED COLLECTION</span>
+                                    <span style={{ color: '#818cf8', fontWeight: 600, fontSize: '0.75rem', letterSpacing: '0.10em' }}>ENGINEERING E-BOOKS COLLECTION</span>
                                 </div>
                                 <h2 style={{ fontSize: '1.5rem', marginBottom: '0.3rem' }}>
-                                    📚 E-Books <span className="text-gradient">Library</span>
+                                    📚 Digital <span className="text-gradient">Library</span>
                                 </h2>
-                                <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', maxWidth: 480 }}>
-                                    Read full-length real books from Project Gutenberg. Download any book for offline reading.
+                                <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', maxWidth: 520 }}>
+                                    Read full-length engineering textbooks online — with Table of Contents, Chapter Summaries, and Book Metadata for each title.
                                 </p>
                                 <div style={{ display: 'flex', gap: 8, marginTop: '0.9rem', flexWrap: 'wrap' }}>
                                     {[
-                                        { text: `✅ ${ebooks.length} Full E-Books`, c: '#10b981' },
-                                        { text: '📖 Read Online', c: '#818cf8' },
-                                        { text: '⬇️ Free Download', c: '#06b6d4' },
+                                        { text: `✅ ${ebooks.length} Engineering E-Books`, c: '#10b981' },
+                                        { text: '📑 Table of Contents', c: '#818cf8' },
+                                        { text: '💡 Chapter Summaries', c: '#a855f7' },
+                                        { text: '🏷️ Book Metadata', c: '#06b6d4' },
+                                        { text: '⬇️ Download', c: '#f59e0b' },
                                     ].map(b => (
                                         <span key={b.text} style={{ padding: '4px 12px', borderRadius: 999, background: `${b.c}18`, border: `1px solid ${b.c}33`, color: b.c, fontSize: '0.75rem', fontWeight: 600 }}>
                                             {b.text}
@@ -739,10 +747,12 @@ const StudentDashboard = ({ user, onLogout }) => {
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(170px,1fr))', gap: '0.75rem' }}>
                                 {[
-                                    { e: '1️⃣', t: 'Click "Read Online" to open the full book reader' },
-                                    { e: '2️⃣', t: 'Use ← → arrow keys or buttons to turn pages' },
-                                    { e: '3️⃣', t: 'Click "Download" to save as a .txt file' },
-                                    { e: '4️⃣', t: 'Rate the book and leave a review after reading' },
+                                    { e: '1️⃣', t: 'Click "Read Online" to open the full book reader with formatted content' },
+                                    { e: '2️⃣', t: 'Click "TOC" to open the Table of Contents and jump to any chapter' },
+                                    { e: '3️⃣', t: 'Click "Info" to view book metadata — author, edition, keywords, and summary' },
+                                    { e: '4️⃣', t: 'Each page shows a chapter summary at the bottom to reinforce key concepts' },
+                                    { e: '5️⃣', t: 'Use ← → arrow keys to navigate pages. Click "Download" to save as .txt file' },
+                                    { e: '6️⃣', t: 'Rate the book after finishing to help other students find top resources' },
                                 ].map(s => (
                                     <div key={s.e} style={{ display: 'flex', gap: 8 }}>
                                         <span style={{ fontSize: '1rem' }}>{s.e}</span>

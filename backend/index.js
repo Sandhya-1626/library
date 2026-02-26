@@ -10,7 +10,7 @@ const PORT = 5000;
 
 // ── Middleware ──────────────────────────────────────────────────────────────
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:8501', 'http://127.0.0.1:8501'],
   credentials: true,
 }));
 app.use(express.json({ limit: '50mb' }));
@@ -105,7 +105,7 @@ function loadBooksFromExcel() {
 // ── Assemble full book list ──────────────────────────────────────────────────
 let books = [
   ...loadFeaturedEbooks(),
-  ...loadBooksFromExcel(),
+  // ...loadBooksFromExcel(),
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
