@@ -37,8 +37,11 @@ const upload = multer({ storage });
 // Admin Login
 app.post('/api/login/admin', (req, res) => {
     const { username, password } = req.body;
-    console.log('Admin login attempt:', { username });
-    if (username === 'admin' && password === 'admin123') {
+    const cleanUsername = username ? username.trim().toLowerCase() : '';
+    const cleanPassword = password ? password.trim() : '';
+
+    console.log('Admin login attempt:', { username: cleanUsername });
+    if (cleanUsername === 'admin' && cleanPassword === 'admin123') {
         console.log('Admin login successful');
         res.json({ success: true, message: 'Admin logged in', user: { username, role: 'admin' } });
     } else {
@@ -51,7 +54,9 @@ app.post('/api/login/admin', (req, res) => {
 app.post('/api/register', async (req, res) => {
     const { name, rollNo, department, year } = req.body;
     const data = await getData();
-    if (data.users.find(u => u.rollNo === rollNo)) {
+
+    const cleanRollNo = rollNo ? rollNo.trim().toUpperCase() : '';
+    if (data.users.find(u => u.rollNo.trim().toUpperCase() === cleanRollNo)) {
         return res.status(400).json({ success: false, message: 'Roll number already registered' });
     }
     const newUser = { name, rollNo, department, year };
@@ -64,7 +69,14 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login/student', async (req, res) => {
     const { name, rollNo } = req.body;
     const data = await getData();
-    const user = data.users.find(u => u.rollNo === rollNo && u.name === name);
+
+    const cleanName = name ? name.trim().toLowerCase() : '';
+    const cleanRollNo = rollNo ? rollNo.trim().toLowerCase() : '';
+
+    const user = data.users.find(u =>
+        u.rollNo.trim().toLowerCase() === cleanRollNo &&
+        u.name.trim().toLowerCase() === cleanName
+    );
 
     if (user) {
         // Log the login
