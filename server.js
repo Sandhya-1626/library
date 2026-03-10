@@ -52,39 +52,83 @@ app.post('/api/login/admin', (req, res) => {
 
 // Student Register
 app.post('/api/register', async (req, res) => {
-    const { name, rollNo, department, year } = req.body;
-    const data = await getData();
+    try {
+        const { name, rollNo, department, year } = req.body;
+        const data = await getData();
 
-    const cleanRollNo = rollNo ? rollNo.trim().toUpperCase() : '';
-    if (data.users.find(u => u.rollNo.trim().toUpperCase() === cleanRollNo)) {
-        return res.status(400).json({ success: false, message: 'Roll number already registered' });
+        if (!name || !rollNo || !department || !year) {
+            return res.status(400).json({ success: false, message: 'All fields are required' });
+        }
+
+        const cleanRollNo = rollNo.trim().toLowerCase();
+
+        if (data.users.find(u => (u.rollNo || '').trim().toLowerCase() === cleanRollNo)) {
+            return res.status(400).json({ success: false, message: 'Roll number already registered' });
+        }
+
+        const newUser = {
+            name: name.trim(),
+            rollNo: rollNo.trim(),
+            department,
+            year
+        };
+
+        data.users.push(newUser);
+        await saveData(data);
+        console.log('New student registered:', newUser.name);
+        res.json({ success: true, message: 'Registration successful', user: newUser });
+    } catch (error) {
+        console.error('Registration error:', error);
+        res.status(500).json({ success: false, message: 'Internal server error during registration' });
     }
-    const newUser = { name, rollNo, department, year };
-    data.users.push(newUser);
-    await saveData(data);
-    res.json({ success: true, message: 'Registration successful', user: newUser });
 });
 
 // Student Login
 app.post('/api/login/student', async (req, res) => {
-    const { name, rollNo } = req.body;
-    const data = await getData();
+    try {
+        const { name, rollNo } = req.body;
+        const data = await getData();
 
-    const cleanName = name ? name.trim().toLowerCase() : '';
-    const cleanRollNo = rollNo ? rollNo.trim().toLowerCase() : '';
+        if (!name || !rollNo) {
+            return res.status(400).json({ success: false, message: 'Name and Roll Number are required' });
+        }
 
-    const user = data.users.find(u =>
-        u.rollNo.trim().toLowerCase() === cleanRollNo &&
-        u.name.trim().toLowerCase() === cleanName
-    );
+        const cleanName = name.trim().toLowerCase().replace(/\s+/g, ' ');
+        const cleanRollNo = rollNo.trim().toLowerCase();
 
-    if (user) {
-        // Log the login
-        data.logs.push({ name, rollNo, department: user.department, date: new Date().toISOString() });
-        await saveData(data);
-        res.json({ success: true, message: 'Student logged in', user: { ...user, role: 'student' } });
-    } else {
-        res.status(401).json({ success: false, message: 'Invalid Name or Roll Number. Please register first.' });
+        console.log('Login attempt:', { cleanName, cleanRollNo });
+
+        const user = data.users.find(u => {
+            const storedRoll = (u.rollNo || '').trim().toLowerCase();
+            const storedName = (u.name || '').trim().toLowerCase().replace(/\s+/g, ' ');
+            return storedRoll === cleanRollNo && storedName === cleanName;
+        });
+
+        if (user) {
+            // Log the login
+            data.logs.push({
+                name: user.name,
+                rollNo: user.rollNo,
+                department: user.department,
+                date: new Date().toISOString()
+            });
+            await saveData(data);
+            console.log('Student login successful:', user.name);
+            res.json({ success: true, message: 'Student logged in', user: { ...user, role: 'student' } });
+        } else {
+            // Check if roll number exists to give better feedback
+            const rollExists = data.users.find(u => (u.rollNo || '').trim().toLowerCase() === cleanRollNo);
+            if (rollExists) {
+                console.log('Student login failed: Name mismatch for roll number', cleanRollNo);
+                res.status(401).json({ success: false, message: 'Invalid Name for this Roll Number.' });
+            } else {
+                console.log('Student login failed: Roll number not found', cleanRollNo);
+                res.status(401).json({ success: false, message: 'Roll Number not registered. Please register first.' });
+            }
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ success: false, message: 'Internal server error during login' });
     }
 });
 
